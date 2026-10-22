@@ -27,7 +27,7 @@ Features:
 In Claude Code, run:
 
 ```
-/plugin marketplace add ypfaff/google-image-gen-plugin
+/plugin marketplace add waqasxh/google-image-gen-plugin
 /plugin install google-image-gen@google-image-gen
 ```
 
@@ -182,7 +182,8 @@ Users receive updates via `/plugin update` or automatic update checks.
 
 ## Credits
 
-This plugin is based on the work
+This is a fork of [ypfaff/google-image-gen-plugin](https://github.com/ypfaff/google-image-gen-plugin) by Yannick Pfaff
+(MIT), which is based on the work
 from [AI Engineer Skool's Google Image Gen API Starter](https://github.com/AI-Engineer-Skool/google-image-gen-api-starter).
 
 For more infos, check out the corresponding [video guide](https://youtu.be/NBibgD7I48w?si=ucFFgKFgyx5FxA-0).
