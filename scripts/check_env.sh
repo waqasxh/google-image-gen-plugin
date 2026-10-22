@@ -58,6 +58,32 @@ print_warn() {
 }
 
 #######################################
+# Check if an .env file holds a real GOOGLE_AI_API_KEY.
+# Keeps everything after the first '=', strips CR and surrounding quotes.
+# Arguments:
+#   Path to the .env file
+# Returns:
+#   0 if a non-placeholder key is present, 1 otherwise
+#######################################
+env_file_has_key() {
+  local file="$1"
+  [[ -f "${file}" ]] || return 1
+
+  local line key_value
+  line="$(grep -m1 "^GOOGLE_AI_API_KEY=" "${file}" || true)"
+  [[ -n "${line}" ]] || return 1
+
+  key_value="${line#GOOGLE_AI_API_KEY=}"
+  key_value="${key_value%$'\r'}"
+  key_value="${key_value#[\"\']}"
+  key_value="${key_value%[\"\']}"
+
+  [[ -n "${key_value}" ]] \
+    && [[ "${key_value}" != "your_key_here" ]] \
+    && [[ "${key_value}" != "your_api_key_here" ]]
+}
+
+#######################################
 # Check if GOOGLE_AI_API_KEY is available from any source.
 # Checks in order:
 #   1. Environment variable
@@ -75,34 +101,14 @@ check_api_key() {
     return 0
   fi
 
-  # 2. Check home config (recommended)
-  if [[ -f "${HOME_ENV}" ]]; then
-    if grep -q "^GOOGLE_AI_API_KEY=" "${HOME_ENV}"; then
-      local key_value
-      key_value="$(grep "^GOOGLE_AI_API_KEY=" "${HOME_ENV}" | cut -d'=' -f2)"
-      if [[ -n "${key_value}" ]] \
-          && [[ "${key_value}" != "your_key_here" ]] \
-          && [[ "${key_value}" != "your_api_key_here" ]]; then
-        print_ok "GOOGLE_AI_API_KEY found in ${HOME_ENV}"
-        return 0
-      fi
+  # 2. Check home config (recommended), 3. plugin directory .env
+  local env_file
+  for env_file in "${HOME_ENV}" "${PLUGIN_DIR}/.env"; do
+    if env_file_has_key "${env_file}"; then
+      print_ok "GOOGLE_AI_API_KEY found in ${env_file}"
+      return 0
     fi
-  fi
-
-  # 3. Check plugin directory .env
-  local plugin_env="${PLUGIN_DIR}/.env"
-  if [[ -f "${plugin_env}" ]]; then
-    if grep -q "^GOOGLE_AI_API_KEY=" "${plugin_env}"; then
-      local key_value
-      key_value="$(grep "^GOOGLE_AI_API_KEY=" "${plugin_env}" | cut -d'=' -f2)"
-      if [[ -n "${key_value}" ]] \
-          && [[ "${key_value}" != "your_key_here" ]] \
-          && [[ "${key_value}" != "your_api_key_here" ]]; then
-        print_ok "GOOGLE_AI_API_KEY found in ${plugin_env}"
-        return 0
-      fi
-    fi
-  fi
+  done
 
   print_error "GOOGLE_AI_API_KEY not found"
   echo "       Set it using one of these methods:"
@@ -115,7 +121,7 @@ check_api_key() {
 #######################################
 # Check if uv package manager is installed.
 # Returns:
-#   0 if installed, 1 if not (warning only)
+#   0 if installed, 1 if not
 #######################################
 check_uv_installed() {
   if command -v uv &> /dev/null; then
@@ -123,10 +129,10 @@ check_uv_installed() {
     return 0
   fi
 
-  print_warn "uv package manager not found"
+  print_error "uv package manager not found"
   echo "       Install: curl -LsSf https://astral.sh/uv/install.sh | sh"
-  echo "       Alternative: use pip directly"
-  return 0  # Warning only, not a blocker
+  echo "       Windows: powershell -c \"irm https://astral.sh/uv/install.ps1 | iex\""
+  return 1
 }
 
 #######################################
@@ -155,7 +161,7 @@ main() {
   echo ""
 
   check_api_key || checks_passed=false
-  check_uv_installed
+  check_uv_installed || checks_passed=false
   check_main_script || checks_passed=false
 
   echo ""

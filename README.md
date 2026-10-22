@@ -113,6 +113,24 @@ Then ask Claude:
 Generate an image of a laptop using the style template my-style.md
 ```
 
+## Free vs. Paid (Switching)
+
+The plugin tries the **free tier first** and never uses the paid model on its own.
+
+| Tier | Default model                 | Override env var          |
+|------|-------------------------------|---------------------------|
+| Free | `gemini-3.1-flash-lite-image` | `GEMINI_IMAGE_MODEL_FREE` |
+| Paid | `gemini-3-pro-image`          | `GEMINI_IMAGE_MODEL_PAID` |
+
+- If the free tier can't serve a request (quota exhausted or billing required), the script exits with code `3`.
+- Claude then asks you whether to switch to the paid model, and re-runs with `--paid` only if you say yes.
+  The approval applies to that request only.
+- From the command line, switch manually with `--paid`.
+
+> Google's pricing page currently lists no free tier for Gemini image models, so on many keys the free attempt will
+> fail and you'll be asked about switching. If your key has free quota on some model, set `GEMINI_IMAGE_MODEL_FREE`
+> to it.
+
 ## Supported Aspect Ratios
 
 | Ratio  | Use Case                                    |
@@ -131,7 +149,7 @@ Generate an image of a laptop using the style template my-style.md
 | Error                         | Cause                 | Solution                                                       |
 |-------------------------------|-----------------------|----------------------------------------------------------------|
 | `GOOGLE_AI_API_KEY not found` | Missing API key       | Create `~/.config/google-image-gen/.env` with your API key     |
-| `Rate limit exceeded`         | Too many API requests | Wait a few minutes or upgrade to paid tier                     |
+| Exit code `3` / `FREE_TIER_UNAVAILABLE` | Free quota exhausted or billing required | Wait and retry, or confirm switching to paid (`--paid`) |
 | `uv: command not found`       | uv not installed      | Install via `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 
 ## Development
