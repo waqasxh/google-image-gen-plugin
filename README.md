@@ -127,9 +127,9 @@ The plugin tries the **free tier first** and never uses the paid model on its ow
   The approval applies to that request only.
 - From the command line, switch manually with `--paid`.
 
-> Google's pricing page currently lists no free tier for Gemini image models, so on many keys the free attempt will
-> fail and you'll be asked about switching. If your key has free quota on some model, set `GEMINI_IMAGE_MODEL_FREE`
-> to it.
+> Free quota for image models depends on your key and Google's current pricing (the pricing page may list no free tier
+> for them). In testing, the default free model worked on a real key. If the free attempt is rejected on yours, you'll
+> be asked before switching to paid. You can point `GEMINI_IMAGE_MODEL_FREE` at any model with free quota on your key.
 
 ## Supported Aspect Ratios
 

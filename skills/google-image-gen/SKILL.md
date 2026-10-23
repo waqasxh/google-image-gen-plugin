@@ -39,9 +39,9 @@ original request (e.g. "use the paid model").
 | Free | `gemini-3.1-flash-lite-image`| `GEMINI_IMAGE_MODEL_FREE`  |
 | Paid | `gemini-3-pro-image`         | `GEMINI_IMAGE_MODEL_PAID`  |
 
-Note: Google's pricing page currently lists no free tier for Gemini image models, so the free
-attempt may fail with exit code 3 for many keys. Users can set `GEMINI_IMAGE_MODEL_FREE` to any
-model that has free quota on their key.
+Note: free quota depends on the user's key and Google's current pricing. The default free model
+has worked on a real key, but if it is rejected the script exits with code 3. Users can set
+`GEMINI_IMAGE_MODEL_FREE` to any model that has free quota on their key.
 
 ## First-Time Setup (Once Per Context)
 
